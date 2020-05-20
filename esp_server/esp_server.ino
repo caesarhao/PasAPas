@@ -17,14 +17,29 @@ IPAddress gateway(192,168,4,1);
 
 IPAddress subnet(255,255,255,0);
 
-const String sForm = "<html>\n\
+const String getForm = "<html>\n\
   <head>\n\
     <title>ESP8266 Server</title>\n\
   </head>\n\
   <body>\n\
-    <h1>form test</h1><br>\n\
-    <form method=\"post\" enctype=\"text/plain\" action=\"/formtest/\">\n\
-      <input type=\"text\" name=\'{\"hello\": \"world\", \"trash\": \"\' value=\'\"}\'><br>\n\
+    <h1>GET form test</h1><br>\n\
+    <form method=\"get\" enctype=\"text/plain\" action=\"/getform\">\n\
+      <label>Nom :</label>\
+      <input type=\"text\" name=\"name\"><br>\n\
+      <input type=\"submit\" value=\"Submit\">\n\
+    </form>\n\
+  </body>\n\
+</html>\n";
+
+const String postForm = "<html>\n\
+  <head>\n\
+    <title>ESP8266 Server</title>\n\
+  </head>\n\
+  <body>\n\
+    <h1>POST form test</h1><br>\n\
+    <form method=\"post\" enctype=\"text/plain\" action=\"/postform\">\n\
+      <label>Nom :</label>\
+      <input type=\"text\" name=\"name\"><br>\n\
       <input type=\"submit\" value=\"Submit\">\n\
     </form>\n\
   </body>\n\
@@ -51,9 +66,16 @@ void setup() {
   delay(10);
   hostIp = WiFi.softAPIP();
 
+  httpServer.on("", handleRoot);
   httpServer.on("/", handleRoot);
   httpServer.onNotFound(handleNotFound);
-  httpServer.on("/formtest/", handlePostFormTest);
+  httpServer.on("/get", handleGet);
+  httpServer.on("/get/", handleGet);
+  httpServer.on("/getform", handleGetForm);
+  httpServer.on("/post", handlePost);
+  httpServer.on("/post/", handlePost);
+  httpServer.on("/postform", handlePostForm);
+  
   httpServer.begin();
 
   Serial.printf("HTTP Server is ready, please access http://%d.%d.%d.%d in your browser\n", hostIp[0], hostIp[1], hostIp[2], hostIp[3]);
@@ -65,14 +87,30 @@ void loop() {
 }
 
 void handleRoot() {
-  httpServer.send(200, "text/plain", sForm);   // Send HTTP status 200 (Ok)
+  httpServer.send(200, "text/html", "Bienvenue à esp server!");   // Send HTTP status 200 (Ok)
 }
 
 void handleNotFound(){
-  httpServer.send(404, "text/plain", "You cannot fly to the moon now!"); // Send HTTP status 404 (Not Found)
+  httpServer.send(404, "text/html", "404, You cannot fly to the moon now!"); // Send HTTP status 404 (Not Found)
 }
 
-void handlePostFormTest(){
+void handleGet() {
+  httpServer.send(200, "text/html", getForm);   // Send HTTP status 200 (Ok)
+}
+
+void handleGetForm(){
+    String message = "GET arguments were:\n";
+    for (uint8_t i = 0; i < httpServer.args(); i++) {
+      message += " " + httpServer.argName(i) + ": " + httpServer.arg(i) + "\n";
+    }
+    httpServer.send(200, "text/plain", message);
+}
+
+void handlePost() {
+  httpServer.send(200, "text/html", postForm);   // Send HTTP status 200 (Ok)
+}
+
+void handlePostForm(){
     String message = "POST form was:\n";
     for (uint8_t i = 0; i < httpServer.args(); i++) {
       message += " " + httpServer.argName(i) + ": " + httpServer.arg(i) + "\n";
