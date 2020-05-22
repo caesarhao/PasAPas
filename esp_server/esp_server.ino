@@ -17,6 +17,17 @@ IPAddress gateway(192,168,4,1);
 
 IPAddress subnet(255,255,255,0);
 
+const String indexPage = "<html>\n\
+  <head>\n\
+    <title>ESP8266 Server</title>\n\
+  </head>\n\
+  <body>\n\
+    <h1>Welcome to ESP Server!</h1><br>\n\
+    <a href=\"get\">Click to try GET</a><br>\n\
+    <a href=\"post\">Click to try POST</a><br>\n\
+  </body>\n\
+</html>\n";
+
 const String getForm = "<html>\n\
   <head>\n\
     <title>ESP8266 Server</title>\n\
@@ -87,7 +98,7 @@ void loop() {
 }
 
 void handleRoot() {
-  httpServer.send(200, "text/html", "Bienvenue à esp server!");   // Send HTTP status 200 (Ok)
+  httpServer.send(200, "text/html", indexPage);   // Send HTTP status 200 (Ok)
 }
 
 void handleNotFound(){
